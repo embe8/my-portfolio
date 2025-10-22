@@ -1,12 +1,14 @@
 class Desktop {
     constructor() {
         // State
-        this.windows = [];
+        this.openWindows = [];
         this.activeWindow = null;
         this.isLoaded = false;
         this.isLoading = false;
-        this.openWindows = [];
         this.currentWindow = null;
+        this.windowCounter = 0;
+        this.windows = [];
+
 
         // DOM element references
         this.desktopElement = null;
@@ -165,7 +167,9 @@ class Desktop {
         if (!windowData) return;
 
         // create window element
+        const windowId = `window-${++this.windowCounter}`;
         const windowElement = this.createWindow(windowData);
+        windowElement.id = windowId;
 
         // add to dom
         const windowsContainer = document.querySelector('.windows-container');
@@ -177,8 +181,17 @@ class Desktop {
         }, 10);
 
         // Add to open windows array
-        this.openWindows.push(windowElement);
-        this.currentWindow = windowElement;
+
+    this.windows.push({
+        id: windowElement.id,
+        element: windowElement,
+        title: windowData.title,
+        isMaximized: false
+    });        
+    
+    this.currentWindow = windowElement;
+    this.activeWindow = windowElement;
+
         // center window
         //this.centerWindow(windowElement);
 
@@ -208,46 +221,29 @@ class Desktop {
         window.style.height = windowData.height + 'px';
         
         window.innerHTML = `
-            <div class="window-header">
-                <div class="window-title">
-                    <span>📄</span>
-                    ${windowData.title}
-                </div>
-                <div class="window-controls">
-                    <div class="window-control minimize"></div>
-                    <div class="window-control maximize"></div>
-                    <div class="window-control close"></div>
-                </div>
+        <div class="window-header">
+            <div class="window-title">
+                <span>📄</span>
+                ${windowData.title}
             </div>
-            <div class="window-content">
-                ${windowData.content}
+            <div class="window-controls">
+                <div class="window-control minimize" data-action="minimize"></div>
+                <div class="window-control maximize" data-action="maximize"></div>
+                <div class="window-control close" data-action="close"></div>
             </div>
-        `;
+        </div>
+        <div class="window-content">
+            ${windowData.content}
+        </div>
+    `;
+    
         
         // Add event listeners for window controls
-        this.addWindowEventListeners(window);
+        this.addWindowEventListeners(window, window.id);
         
         return window;
     }
-
-    addWindowEventListeners(window) {
-        const closeBtn = window.querySelector('.close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                this.closeWindow(window);
-            });
-        }
-    }
     
-    closeWindow(window) {
-        if (window && window.parentNode) {
-            window.parentNode.removeChild(window);
-            this.openWindows = this.openWindows.filter(w => w !== window);
-            if (this.currentWindow === window) {
-                this.currentWindow = null;
-            }
-        }
-    }
 
 setActiveWindow(id) {
     this.deselectAllIcons();
@@ -258,7 +254,7 @@ setActiveWindow(id) {
 
 }
 
-addWindowEventListeners(window, id) {
+addWindowEventListeners(window, windowId) {
     window.querySelectorAll('.window-control').forEach(control => {
         control.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -266,20 +262,20 @@ addWindowEventListeners(window, id) {
             
             switch (action) {
                 case 'close':
-                    this.closeWindow(windowId);
+                    this.closeWindow(window.id);
                     break;
                 case 'minimize':
-                    this.minimizeWindow(windowId);
+                    this.minimizeWindow(window.id);
                     break;
                 case 'maximize':
-                    this.toggleMaximizeWindow(windowId);
+                    this.toggleMaximizeWindow(window.id);
                     break;
             }
         });
     });
     
     window.addEventListener('click', () => {
-        this.setActiveWindow(windowId);
+        this.setActiveWindow(window.id);
     });
 }
 
@@ -405,7 +401,7 @@ closeWindow(windowId) {
     if (windowIndex !== -1) {
         const window = this.windows[windowIndex];
         
-        this.removeTaskbarItem(windowId);
+        //this.removeTaskbarItem(windowId);
         
         window.element.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         window.element.style.transform = 'scale(0)';
@@ -423,9 +419,10 @@ closeWindow(windowId) {
             this.activeWindow = null;
         }
         
-        this.addSoundEffect('close');
     }
 }
+
+
 
     getWindow(file) {
         const window = {

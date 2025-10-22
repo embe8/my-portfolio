@@ -421,14 +421,24 @@ body {
 }
 
 .window-control {
-    width: 12px;
-    height: 12px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
 .window-control.close {
-    background: #ff5f57;
+    background: linear-gradient(135deg, #ff5f56, #f44336);
+    color: white;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .window-content {
