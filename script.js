@@ -160,7 +160,7 @@ class Desktop {
 
     openWindow(file) {
         // close existing windows first
-        this.closeAllWindows();
+        //this.closeAllWindows();
 
         // get window data
         const windowData = this.getWindow(file);
@@ -168,7 +168,7 @@ class Desktop {
 
         // create window element
         const windowId = `window-${++this.windowCounter}`;
-        const windowElement = this.createWindow(windowData);
+        const windowElement = this.createWindow(windowData, windowId);
         windowElement.id = windowId;
 
         // add to dom
@@ -187,7 +187,10 @@ class Desktop {
         element: windowElement,
         title: windowData.title,
         isMaximized: false
-    });        
+    });  
+    
+    console.log(windowElement.id);
+console.log(this.windows.length)
     
     this.currentWindow = windowElement;
     this.activeWindow = windowElement;
@@ -213,7 +216,7 @@ class Desktop {
         return container;
     }
     
-    createWindow(windowData) {
+    createWindow(windowData, windowId) {
         const window = document.createElement('div');
         window.className = 'window';
         window.dataset.fileType = windowData.title;
@@ -235,11 +238,14 @@ class Desktop {
         <div class="window-content">
             ${windowData.content}
         </div>
+        </div>
     `;
+
+    
     
         
         // Add event listeners for window controls
-        this.addWindowEventListeners(window, window.id);
+        this.addWindowEventListeners(window, windowId);
         
         return window;
     }
@@ -251,6 +257,7 @@ setActiveWindow(id) {
     if (!window) return;
     window.element.classList.add('active');
     this.currentWindow = window;
+    console.log(window.id);
 
 }
 
@@ -262,20 +269,20 @@ addWindowEventListeners(window, windowId) {
             
             switch (action) {
                 case 'close':
-                    this.closeWindow(window.id);
+                    this.closeWindow(windowId);
                     break;
                 case 'minimize':
-                    this.minimizeWindow(window.id);
+                    this.minimizeWindow(windowId);
                     break;
                 case 'maximize':
-                    this.toggleMaximizeWindow(window.id);
+                    this.toggleMaximizeWindow(windowId);
                     break;
             }
         });
     });
     
     window.addEventListener('click', () => {
-        this.setActiveWindow(window.id);
+        this.setActiveWindow(windowId);
     });
 }
 
@@ -359,6 +366,7 @@ makeWindowResizable(window, windowId) {
 }
 
 setActiveWindow(windowId) {
+    console.log(windowId);
     this.windows.forEach(win => {
         win.element.style.zIndex = this.windowZIndex;
         win.element.classList.remove('active-window');
@@ -377,7 +385,7 @@ setActiveWindow(windowId) {
             this.windows.push(movedWindow);
         }
         
-        this.updateTaskbar();
+        //this.updateTaskbar();
         this.addWindowFocusEffect(window.element);
     }
 }
@@ -397,6 +405,8 @@ addWindowFocusEffect(windowElement) {
 }
 
 closeWindow(windowId) {
+    console.log(windowId);
+    console.log(this.windows.length);
     const windowIndex = this.windows.findIndex(win => win.id === windowId);
     if (windowIndex !== -1) {
         const window = this.windows[windowIndex];
