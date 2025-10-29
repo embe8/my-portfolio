@@ -171,9 +171,18 @@ class Desktop {
         const windowElement = this.createWindow(windowData, windowId);
         windowElement.id = windowId;
 
+        // Set initial position (center of screen)
+        const centerX = window.innerWidth / 2 - windowData.width / 2;
+        const centerY = window.innerHeight / 2 - windowData.height / 2;
+        windowElement.style.left = `${centerX}px`;
+        windowElement.style.top = `${centerY}px`;
+
         // add to dom
         const windowsContainer = document.querySelector('.windows-container');
         windowsContainer.appendChild(windowElement);
+
+        this.makeWindowDraggable(windowElement);
+        this.makeWindowResizable(windowElement);
 
         // show window with animation
         setTimeout(() => {
@@ -241,9 +250,6 @@ console.log(this.windows.length)
         </div>
     `;
 
-    
-    
-        
         // Add event listeners for window controls
         this.addWindowEventListeners(window, windowId);
         
@@ -298,8 +304,10 @@ makeWindowDraggable(window) {
         isDragging = true;
         startX = e.clientX;
         startY = e.clientY;
-        startLeft = parseInt(window.style.left, 10);
-        startTop = parseInt(window.style.top, 10);
+        
+        // Get current position, defaulting to 0 if not set
+        startLeft = parseInt(window.style.left, 10) || 0;
+        startTop = parseInt(window.style.top, 10) || 0;
         
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);

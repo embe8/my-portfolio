@@ -389,14 +389,12 @@ body {
     opacity: 0;
     transform: scale(0.9);
     transition: all 0.3s ease;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
+    /* Remove the centering - let JavaScript handle positioning */
 }
 
 .window.active {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: scale(1);
 }
 
 .window-header {
